@@ -30,19 +30,19 @@
 -subL _E1,_sig -> _I1,_sigP                   --- sub(_E1,_E2),_sig -> sub(_I1,_E2),_sigP
 
 -mul _n1 |> __int32(_) _n2 |> __int32(_)      --- mul(_n1, _n2),_sig -> __mul(_n1, _n2),_sig
--mulR _n |> _int32(_) _E2,_sig -> _I2,_sigP   --- mul(_n,_E2),_sig -> mul(_n,_I2),_sigP
+-mulR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- mul(_n,_E2),_sig -> mul(_n,_I2),_sigP
 -mulL _E1,_sig -> _I1,_sigP                   --- mul(_E1, _E2),_sig -> mul(_I1, _E2),_sigP
 
 -add _n1 |> __int32(_) _n2 |> int32(_)        --- add(_n1, _n2),_sig -> __add(_n1, _n2),_sig
--addR _n |> _int32(_) _E2,_sig -> _I2,_sigP   --- add(_n,_E2),_sig -> add(_n,_I2),_sigP
+-addR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- add(_n,_E2),_sig -> add(_n,_I2),_sigP
 -addL _E1,_sig -> _I1,_sigP                   --- add(_E1, _E2),_sig -> add(_I1, _E2),_sigP
 
 -div _n1 |> __int32(_) _n2 |> int32(_)        --- div(_n1, _n2),_sig -> __div(_n1, _n2),_sig
--divR _n |> _int32(_) _E2,_sig -> _I2,_sigP   --- div(_n,_E2),_sig -> div(_n,_I2),_sigP
+-divR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- div(_n,_E2),_sig -> div(_n,_I2),_sigP
 -divL _E1,_sig -> _I1,_sigP                   --- div(_E1, _E2),_sig -> div(_I1, _E2),_sigP
 
 -mod _n1 |> __int32(_) _n2 |> int32(_)        --- mod(_n1, _n2),_sig -> __mod(_n1, _n2),_sig
--modR _n |> _int32(_) _E2,_sig -> _I2,_sigP   --- mod(_n,_E2),_sig -> mod(_n,_I2),_sigP
+-modR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- mod(_n,_E2),_sig -> mod(_n,_I2),_sigP
 -modL _E1,_sig -> _I1,_sigP                   --- mod(_E1, _E2),_sig -> mod(_I1, _E2),_sigP
 
 -plugin --- plugin(_O),_sig -> __plugin(_O),_sig
