@@ -16,13 +16,14 @@
 -ifResolve _E,_sig ->_EP,_sigP --- if(_E,_C1,_C2),_sig -> if(_EP,_C1,_C2),_sigP
 
 -while --- while(_E,_C),_sig -> if(_E,seq(_C,while(_E,_C)),__done),_sig
+-forDesugar --- for(_init, _cond, _update, _body), _sig -> seq(_init, while(_cond, seq(_body, _update))), _sig
 
 -gt  _n1 |> __int32(_)  _n2 |> __int32(_)     --- gt(_n1,_n2),_sig  ->  __gt(_n1,_n2),_sig 
 -gtR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- gt(_n,_E2),_sig   -> gt(_n,_I2),_sigP
 -gtL _E1,_sig -> _I1,_sigP                    --- gt(_E1,_E2),_sig  -> gt(_I1,_E2),_sigP
 
 -lt  _n1 |> __int32(_) _n2 |> __int32(_)      --- lt(_n1, _n2),_sig -> __lt(_n1, _n2),_sig
--ltR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- lt(_n1, _E2),_sig -> lt(_n,_I2),_sigP 
+-ltR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- lt(_n, _E2),_sig -> lt(_n,_I2),_sigP 
 -ltL _E1,_sig -> _I1,_sigP                    --- lt(_E1,_E2),_sig  -> lt(_I1,_E2),_sigP
 
 -ge  _n1 |> __int32(_)  _n2 |> __int32(_)     --- ge(_n1,_n2),_sig  ->  __ge(_n1,_n2),_sig 
@@ -73,25 +74,45 @@ seq ::= statement^^ | statement seq
 statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
+statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
 if ::= 'if'^ expression 'then'^ statement | 'if'^ expression 'then'^ statement 'else'^ statement
 plugin ::= 'plugin'^ '('^ expressions^ ')'^  
 box ::= 'box'^ __real64 ','^ __real64 ','^ __real64
 expressions ::= expression | expression ','^ expressions^
+
 expression ::= rels^^
-rels ::= adds^^ | gt^^ | ne^^
+
+// 1. New relational operator grammer rules
+rels ::= adds^^| gt^^| lt^^ | eq^^ | ne^^
   gt ::= adds '>'^ adds
-  ne ::= adds '!='^ adds 
-adds  ::= operand^^ | sub^^ | add^^
-  add ::= adds '+'^ operand
-  sub ::= adds '-'^ operand
-operand ::= __real64^^ | deref^^ | __string^^ | plugin^^
+  lt ::= adds '<'^ adds
+  ge ::= adds '>='^ adds
+  le ::= adds '<='^ adds
+  eq ::= adds '=='^ adds
+  ne ::= adds '!='^ adds
+
+// 2. Addition and Subtraction rules
+adds ::= muls^^ | add^^ | sub^^
+   add ::= adds '+'^ muls
+   sub ::= adds '-'^ muls
+
+// 3. Multiplication, Division and Modulo grammer rules
+muls ::= operand^^ | mul^^ | div ^^ | mod^^
+  mul ::= muls '*'^ operand
+  div ::= muls '/'^ operand
+  mod ::= muls '%'^ operand
+
+// 4. Base Values 
+operand ::= __real64^^ | __int32^^ | deref^^ | __string^^ | plugin^^
 __real64 ::= &REAL
-deref   ::= &ID
-__string::= &STRING_SQ
+__int32 ::= &INTEGER
+deref ::= &ID
+__string ::= &STRING_SQ
 
 (* GCD examples *)
 //!try seq(assign(a,6), seq(assign(b,9), while(ne(deref(a), deref(b)), if(gt(deref(a), deref(b)), assign(a, sub(deref(a), deref(b))), assign(b, sub(deref(b), deref(a))))))), __map
 //!try "a := 6; b := 9; while a != b do if a > b then a := a - b; else b := b - a;"
+!try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
 
 (* Plugin test *)
 //!try "plugin('init');"
