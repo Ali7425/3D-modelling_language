@@ -4,6 +4,7 @@
 
 (* Term rewrite rules *)
 -assign  _n |> __int32(_)    --- assign(_X,_n),_sig -> __done,__put(_sig,_X,_n)
+-assignBool _b |> __bool(_)  --- assign(_X, _b),_sig -> __done,__put(_sig,_X,_b)
 -assignR _E,_sig -> _I,_sigP --- assign(_X,_E),_sig -> assign(_X,_I),_sigP
 
 -deref --- deref(_R),_sig -> __get(_sig,_R),_sig
@@ -31,8 +32,8 @@
 -geL _E1,_sig -> _I1,_sigP                    --- ge(_E1,_E2),_sig  -> ge(_I1,_E2),_sigP
 
 -le _n1 |> __int32(_) _n2 |> __int32(_)    --- le (_n1,_n2),_sig -> __le(_n1, _n2),_sig
--leR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- le(_n1, _E2),_sig -> lt(_n,_I2),_sigP
--leL _E1,_sig -> _I1,_sigP                    --- le(_E1, _E2),_sig -> lt(_I1,_E2),_sigP
+-leR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- le(_n, _E2),_sig -> le(_n,_I2),_sigP
+-leL _E1,_sig -> _I1,_sigP                    --- le(_E1, _E2),_sig -> le(_I1,_E2),_sigP
 
 -ne  _n1 |> __int32(_) _n2 |> __int32(_)      --- ne(_n1,_n2),_sig  -> __ne(_n1,_n2),_sig
 -neR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- ne(_n,_E2) ,_sig  -> ne(_n,_I2),_sigP
@@ -83,7 +84,7 @@ expressions ::= expression | expression ','^ expressions^
 expression ::= rels^^
 
 // 1. New relational operator grammer rules
-rels ::= adds^^| gt^^| lt^^ | eq^^ | ne^^
+rels ::= adds^^ | gt^^| lt^^ | ge^^ | le^^ | eq^^ | ne^^
   gt ::= adds '>'^ adds
   lt ::= adds '<'^ adds
   ge ::= adds '>='^ adds
@@ -103,7 +104,8 @@ muls ::= operand^^ | mul^^ | div ^^ | mod^^
   mod ::= muls '%'^ operand
 
 // 4. Base Values 
-operand ::= __real64^^ | __int32^^ | deref^^ | __string^^ | plugin^^
+operand ::= __real64^^ | __int32^^ | boolean^^ | deref^^ | __string^^ | plugin^^
+boolean ::= 'true'^ | 'false'^
 __real64 ::= &REAL
 __int32 ::= &INTEGER
 deref ::= &ID
