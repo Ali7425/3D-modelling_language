@@ -4,6 +4,8 @@
 
 (* Term rewrite rules *)
 -assign  _n |> __int32(_)    --- assign(_X,_n),_sig -> __done,__put(_sig,_X,_n)
+-assignTrue                  --- assign(_X, true),_sig -> __done,__put(_sig,_X,true)
+-assignFalse                 --- assign(_X, false),_sig -> __done,__put(_sig,_X,false)
 -assignBool _b |> __bool(_)  --- assign(_X, _b),_sig -> __done,__put(_sig,_X,_b)
 -assignR _E,_sig -> _I,_sigP --- assign(_X,_E),_sig -> assign(_X,_I),_sigP
 
@@ -12,9 +14,18 @@
 -sequenceDone                    --- seq(__done, _C),_sig -> _C,_sig
 -sequence _C1,_sig -> _C1P,_sigP --- seq(_C1,_C2),_sig -> seq(_C1P,_C2),_sigP
 
--ifTrue                        --- if(true,_C1,_C2),_sig -> _C1,_sig
--ifFalse                       --- if(false,_C1,_C2),_sig -> _C2,_sig
--ifResolve _E,_sig ->_EP,_sigP --- if(_E,_C1,_C2),_sig -> if(_EP,_C1,_C2),_sigP
+-ifTrueAST                       --- if(true,_C1,_C2),_sig -> _C1,_sig
+-ifFalseAST                      --- if(false,_C1,_C2),_sig -> _C2,_sig
+-ifTruePrim  _b |> __bool(true)  --- if(_b,_C1,_C2),_sig -> _C1,_sig
+-ifFalsePrim _b |> __bool(false) --- if(_b,_C1,_C2),_sig -> _C2,_sig
+
+-ifTrueSingleAST                       --- if(true, _C),_sig -> _C,_sig
+-ifFalseSingleAST                      --- if(false, _C),_sig -> __done,_sig
+-ifTrueSinglePrim  _b |> __bool(true)  --- if(_b, _C),_sig -> _C,_sig
+-ifFalseSinglePrim _b |> __bool(false) --- if(_b, _C),_sig -> __done,_sig
+
+-ifResolve       _E,_sig ->_EP,_sigP --- if(_E,_C1,_C2),_sig -> if(_EP,_C1,_C2),_sigP
+-ifResolveSingle _E,_sig ->_EP,_sigP --- if(_E,_C),_sig -> if(_EP,_C),_sigP
 
 -while --- while(_E,_C),_sig -> if(_E,seq(_C,while(_E,_C)),__done),_sig
 -forDesugar --- for(_init, _cond, _update, _body), _sig -> seq(_init, while(_cond, seq(_body, _update))), _sig
@@ -70,7 +81,7 @@
 
 -box   --- box(_X, _Y, _Z),_sig -> __plugin("box", _X, _Y, _Z),_sig
 
-(*  CFG rules *)
+(* CFG rules *)
 seq ::= statement^^ | statement seq 
 statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^
 assign ::= &ID ':='^ expression ';'^
@@ -104,22 +115,14 @@ muls ::= operand^^ | mul^^ | div ^^ | mod^^
   mod ::= muls '%'^ operand
 
 // 4. Base Values 
-operand ::= __real64^^ | __int32^^ | boolean^^ | deref^^ | __string^^ | plugin^^
-boolean ::= 'true'^ | 'false'^
+operand ::= __real64^^ | __int32^^ | 'true'^^ | 'false'^^ | deref^^ | __string^^ | plugin^^
 __real64 ::= &REAL
 __int32 ::= &INTEGER
 deref ::= &ID
 __string ::= &STRING_SQ
 
-(* GCD examples *)
-//!try seq(assign(a,6), seq(assign(b,9), while(ne(deref(a), deref(b)), if(gt(deref(a), deref(b)), assign(a, sub(deref(a), deref(b))), assign(b, sub(deref(b), deref(a))))))), __map
-//!try "a := 6; b := 9; while a != b do if a > b then a := a - b; else b := b - a;"
+(* Tests *)
 !try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
-
-(* Plugin test *)
-//!try "plugin('init');"
-!try "plugin('init'); plugin('box', 20.0,10.0,40.0);"
-//!try "plugin('init'); box 20.0,10.0,40.0;"
- 
-//!try "plugin('weird', 666); "
+!try "is_working := true; x := 10; if x > 5 then y := 100; else y := 0;"
+!try "plugin('init'); plugin('box', 20.0, 10.0, 40.0);"
  
