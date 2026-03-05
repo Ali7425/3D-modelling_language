@@ -22,6 +22,7 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Translate;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
+import java.util.Stack;
 import javafx.stage.Stage;
 import uk.ac.rhul.cs.csle.art.fx.Transformer3D;
 import uk.ac.rhul.cs.csle.art.term.AbstractValuePlugin;
@@ -39,6 +40,7 @@ public class ARTValuePlugin extends AbstractValuePlugin {
   final Group axisGroup = new Group();
   public final Group meshGroup = new Group();
   public final Transformer3D world = new Transformer3D();
+  final Stack<Group> groupStack = new Stack<>();
   double cameraDistance;
 
   @Override
@@ -76,6 +78,14 @@ public class ARTValuePlugin extends AbstractValuePlugin {
     case "rotate":
       rotate((double) args[1], (double) args[2], (double) args[3]);
       break;
+    
+    case "groupStart":
+      groupStart();
+      break;
+  
+    case "groupEnd":
+      groupEnd();
+      break;
 
     default:
       Util.fatal("Unknown plugin operation: " + args[0]);
@@ -84,21 +94,31 @@ public class ARTValuePlugin extends AbstractValuePlugin {
     return __done;
   }
 
+  private void groupStart() {
+    Group newGroup = new Group();
+    groupStack.peek().getChildren().add(newGroup);
+    groupStack.push(newGroup);
+  }
+
+  private void groupEnd() {
+    groupStack.pop();
+  }
+ 
   private void makeBox(double x, double y, double z) {
-    root.getChildren().add(new Box(x, y, z));
+    groupStack.peek().getChildren().add(new Box(x, y, z));
   }
 
   private void makeSphere(double radius) {
-    root.getChildren().add(new Sphere(radius));
+    groupStack.peek().getChildren().add(new Sphere(radius));
   }
 
   private void makeCylinder(double radius, double height) {
-    root.getChildren().add(new Cylinder(radius, height));
+    groupStack.peek().getChildren().add(new Cylinder(radius, height));
   }
 
-  // Helper to grab the most recently drawn shape
   private Node getLastNode() {
-    return root.getChildren().get(root.getChildren().size() - 1);
+    Group current = groupStack.peek();
+    return current.getChildren().get(current.getChildren().size() - 1);
   }
 
   private void translate(double tx, double ty, double tz) {
@@ -117,6 +137,7 @@ public class ARTValuePlugin extends AbstractValuePlugin {
   }
 
   private void initialise() {
+    groupStack.push(root);
     cameraDistance = cameraInitialDistance;
     root.getChildren().add(world);
     world.getChildren().add(meshGroup);

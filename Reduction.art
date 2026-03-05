@@ -103,6 +103,8 @@
 -cylinder2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_X, _YP),_sigP
 -cylinder1 _X,_sig -> _XP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_XP, _Y),_sigP
 
+-group --- group(_C),_sig -> seq(__plugin("groupStart"), seq(_C, __plugin("groupEnd"))),_sig
+
 -translate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- translate(_X, _Y, _Z),_sig -> __plugin("translate", _X, _Y, _Z),_sig
 -translate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _Y, _ZP),_sigP
 -translate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _YP, _Z),_sigP
@@ -120,7 +122,8 @@
 
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^
+group ::= 'group'^ '{'^ seq '}'^
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
@@ -176,4 +179,7 @@ __string ::= &STRING_SQ
 //!try "plugin('init'); cylinder 20.0, 60.0;"
 
 // Test for translation. If it is being tested, please comment out the previous test shape
-!try "plugin('init'); box 20.0, 20.0, 20.0; translate 50.0, 0.0, 0.0; sphere 30.0; translate 0.0 - 50.0, 0.0, 0.0;"
+//!try "plugin('init'); box 20.0, 20.0, 20.0; translate 50.0, 0.0, 0.0; sphere 30.0; translate 0.0 - 50.0, 0.0, 0.0;"
+
+// Please only test the grouping when other 3d shape tests are commented out
+!try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 20.0, 0.0; cylinder 10.0, 40.0; translate 0.0, -20.0, 0.0; } translate 100.0, 0.0, 0.0; rotate 45.0, 45.0, 45.0;"
