@@ -91,7 +91,10 @@
 -plugin --- plugin(_O, _X, _Y),_sig -> __plugin(_O, _X, _Y),_sig
 -plugin --- plugin(_O, _X, _Y, _Z),_sig -> __plugin(_O, _X, _Y, _Z),_sig
 
--box   --- box(_X, _Y, _Z),_sig -> __plugin("box", _X, _Y, _Z),_sig
+-box   _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- box(_X, _Y, _Z),_sig -> __plugin("box", _X, _Y, _Z),_sig
+-box3  _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- box(_X, _Y, _Z),_sig -> box(_X, _Y, _ZP),_sigP
+-box2  _X |> __real64(_) _Y,_sig -> _YP,_sigP --- box(_X, _Y, _Z),_sig -> box(_X, _YP, _Z),_sigP
+-box1  _X,_sig -> _XP,_sigP --- box(_X, _Y, _Z),_sig -> box(_XP, _Y, _Z),_sigP
 
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
@@ -101,7 +104,7 @@ while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
 if ::= 'if'^ expression 'then'^ statement | 'if'^ expression 'then'^ statement 'else'^ statement
 plugin ::= 'plugin'^ '('^ expressions^ ')'^  
-box ::= 'box'^ __real64 ','^ __real64 ','^ __real64
+box ::= 'box'^ expression ','^ expression ','^ expression
 expressions ::= expression | expression ','^ expressions^
 
 expression ::= rels^^
@@ -136,5 +139,6 @@ __string ::= &STRING_SQ
 (* Tests *)
 !try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
 !try "is_working := true; x := 10; if x > 5 then y := 100; else y := 0;"
-!try "plugin('init'); plugin('box', 20.0, 10.0, 40.0);"
+// !try "plugin('init'); plugin('box', 20.0, 10.0, 40.0);"
 !try "decimal_math := 10.5 + 2.2; is_bigger := 10.5 > 2.2;"
+!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
