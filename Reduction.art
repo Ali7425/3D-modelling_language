@@ -103,9 +103,24 @@
 -cylinder2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_X, _YP),_sigP
 -cylinder1 _X,_sig -> _XP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_XP, _Y),_sigP
 
+-translate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- translate(_X, _Y, _Z),_sig -> __plugin("translate", _X, _Y, _Z),_sig
+-translate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _Y, _ZP),_sigP
+-translate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _YP, _Z),_sigP
+-translate1 _X,_sig -> _XP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_XP, _Y, _Z),_sigP
+
+-scale  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- scale(_X, _Y, _Z),_sig -> __plugin("scale", _X, _Y, _Z),_sig
+-scale3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _Y, _ZP),_sigP
+-scale2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _YP, _Z),_sigP
+-scale1 _X,_sig -> _XP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_XP, _Y, _Z),_sigP
+
+-rotate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- rotate(_X, _Y, _Z),_sig -> __plugin("rotate", _X, _Y, _Z),_sig
+-rotate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _Y, _ZP),_sigP
+-rotate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _YP, _Z),_sigP
+-rotate1 _X,_sig -> _XP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_XP, _Y, _Z),_sigP
+
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
@@ -114,6 +129,9 @@ plugin ::= 'plugin'^ '('^ expressions^ ')'^
 box ::= 'box'^ expression ','^ expression ','^ expression
 sphere ::= 'sphere'^ expression
 cylinder ::= 'cylinder'^ expression ','^ expression
+translate ::= 'translate'^ expression ','^ expression ','^ expression
+scale ::= 'scale'^ expression ','^ expression ','^ expression
+rotate ::= 'rotate'^ expression ','^ expression ','^ expression
 expressions ::= expression | expression ','^ expressions^
 
 expression ::= rels^^
@@ -139,7 +157,8 @@ muls ::= operand^^ | mul^^ | div ^^ | mod^^
   mod ::= muls '%'^ operand
 
 // 4. Base Values 
-operand ::= __real64^^ | __int32^^ | 'true'^^ | 'false'^^ | deref^^ | __string^^ | plugin^^
+operand ::= __real64^^ | __int32^^ | 'true'^^ | 'false'^^ | deref^^ | __string^^ | plugin^^ | neg^^
+neg ::= '-'^ operand
 __real64 ::= &REAL
 __int32 ::= &INTEGER
 deref ::= &ID
@@ -154,4 +173,7 @@ __string ::= &STRING_SQ
 
 //!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
 //!try "plugin('init'); sphere 50.0;"
-!try "plugin('init'); cylinder 20.0, 60.0;"
+//!try "plugin('init'); cylinder 20.0, 60.0;"
+
+// Test for translation. If it is being tested, please comment out the previous test shape
+!try "plugin('init'); box 20.0, 20.0, 20.0; translate 50.0, 0.0, 0.0; sphere 30.0; translate 0.0 - 50.0, 0.0, 0.0;"

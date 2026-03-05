@@ -20,6 +20,8 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Sphere;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Translate;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import uk.ac.rhul.cs.csle.art.fx.Transformer3D;
 import uk.ac.rhul.cs.csle.art.term.AbstractValuePlugin;
@@ -63,6 +65,18 @@ public class ARTValuePlugin extends AbstractValuePlugin {
       makeCylinder((double) args[1], (double) args[2]);
       break;
 
+    case "translate":
+      translate((double) args[1], (double) args[2], (double) args[3]);
+      break;
+
+    case "scale":
+      scale((double) args[1], (double) args[2], (double) args[3]);
+      break;
+
+    case "rotate":
+      rotate((double) args[1], (double) args[2], (double) args[3]);
+      break;
+
     default:
       Util.fatal("Unknown plugin operation: " + args[0]);
     }
@@ -80,6 +94,26 @@ public class ARTValuePlugin extends AbstractValuePlugin {
 
   private void makeCylinder(double radius, double height) {
     root.getChildren().add(new Cylinder(radius, height));
+  }
+
+  // Helper to grab the most recently drawn shape
+  private Node getLastNode() {
+    return root.getChildren().get(root.getChildren().size() - 1);
+  }
+
+  private void translate(double tx, double ty, double tz) {
+    getLastNode().getTransforms().add(new Translate(tx, ty, tz));
+  }
+
+  private void scale(double sx, double sy, double sz) {
+    getLastNode().getTransforms().add(new Scale(sx, sy, sz));
+  }
+
+  private void rotate(double rx, double ry, double rz) {
+    Node n = getLastNode();
+    n.getTransforms().add(new Rotate(rx, Rotate.X_AXIS));
+    n.getTransforms().add(new Rotate(ry, Rotate.Y_AXIS));
+    n.getTransforms().add(new Rotate(rz, Rotate.Z_AXIS));
   }
 
   private void initialise() {
@@ -106,15 +140,10 @@ public class ARTValuePlugin extends AbstractValuePlugin {
   }
 
   private void buildLights() {
-    // AmbientLight ambientLight = new AmbientLight(); // default color white
-    // ambientLight.setLightOn(true); // switch it off and everything is black
-    // world.getChildren().add(ambientLight);
-
     PointLight pointLight = new PointLight();
     pointLight.setTranslateX(500);
     pointLight.setTranslateY(-500);
     pointLight.setTranslateZ(500);
-    // pointLight.setRotate(45);
     root.getChildren().add(pointLight);
 
     pointLight = new PointLight();
@@ -141,19 +170,16 @@ public class ARTValuePlugin extends AbstractValuePlugin {
     blueMaterial.setDiffuseColor(Color.DARKBLUE);
     blueMaterial.setSpecularColor(Color.BLUE);
 
-    final double axisSize = 0.1;
-    final double axisLength = 30;
+    final double axisSize = 0.5;
+    final double axisLength = 400;
 
     final Box xAxis = new Box(axisLength, axisSize, axisSize);
     final Box yAxis = new Box(axisSize, axisLength, axisSize);
     final Box zAxis = new Box(axisSize, axisSize, axisLength);
 
     xAxis.setMaterial(redMaterial);
-    xAxis.getTransforms().add(new Translate(axisLength * 0.45, 0, 0));
     yAxis.setMaterial(greenMaterial);
-    yAxis.getTransforms().add(new Translate(0, axisLength * 0.45, 0));
     zAxis.setMaterial(blueMaterial);
-    zAxis.getTransforms().add(new Translate(0, 0, axisLength * 0.45));
 
     axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
     world.getChildren().addAll(axisGroup);
@@ -298,12 +324,10 @@ public class ARTValuePlugin extends AbstractValuePlugin {
           } else {
             cameraRotator.rz.setAngle(cameraRotator.rz.getAngle() - mouseDeltaX * modifier);
             cameraRotator.rx.setAngle(cameraRotator.rx.getAngle() + mouseDeltaY * modifier);
-            // System.out.println("rx = " + cameraRotator.rx.getAngle() + " ry = " + cameraRotator.ry.getAngle() + " rz = " + cameraRotator.rz.getAngle());
           }
         } else if (me.isSecondaryButtonDown()) {
-          cameraPanner.t.setX(cameraPanner.t.getX() + mouseDeltaX * modifier); // -
-          cameraPanner.t.setY(cameraPanner.t.getY() + mouseDeltaY * modifier); // -
-          // System.out.println("tx = " + cameraPanner.t.getX() + "ty = " + cameraPanner.t.getY());
+          cameraPanner.t.setX(cameraPanner.t.getX() + mouseDeltaX * modifier); 
+          cameraPanner.t.setY(cameraPanner.t.getY() + mouseDeltaY * modifier); 
         }
       }
     });
