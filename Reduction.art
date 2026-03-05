@@ -96,15 +96,24 @@
 -box2  _X |> __real64(_) _Y,_sig -> _YP,_sigP --- box(_X, _Y, _Z),_sig -> box(_X, _YP, _Z),_sigP
 -box1  _X,_sig -> _XP,_sigP --- box(_X, _Y, _Z),_sig -> box(_XP, _Y, _Z),_sigP
 
+-sphere  _X |> __real64(_)    --- sphere(_X),_sig -> __plugin("sphere", _X),_sig
+-sphere1 _X,_sig -> _XP,_sigP --- sphere(_X),_sig -> sphere(_XP),_sigP
+
+-cylinder  _X |> __real64(_) _Y |> __real64(_) --- cylinder(_X, _Y),_sig -> __plugin("cylinder", _X, _Y),_sig
+-cylinder2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_X, _YP),_sigP
+-cylinder1 _X,_sig -> _XP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_XP, _Y),_sigP
+
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
 if ::= 'if'^ expression 'then'^ statement | 'if'^ expression 'then'^ statement 'else'^ statement
 plugin ::= 'plugin'^ '('^ expressions^ ')'^  
 box ::= 'box'^ expression ','^ expression ','^ expression
+sphere ::= 'sphere'^ expression
+cylinder ::= 'cylinder'^ expression ','^ expression
 expressions ::= expression | expression ','^ expressions^
 
 expression ::= rels^^
@@ -139,6 +148,10 @@ __string ::= &STRING_SQ
 (* Tests *)
 !try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
 !try "is_working := true; x := 10; if x > 5 then y := 100; else y := 0;"
-// !try "plugin('init'); plugin('box', 20.0, 10.0, 40.0);"
 !try "decimal_math := 10.5 + 2.2; is_bigger := 10.5 > 2.2;"
-!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
+
+// --- 3D GRAPHICS TESTS (ONLY LEAVE ONE UNCOMMENTED AT A TIME!) ---
+
+//!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
+//!try "plugin('init'); sphere 50.0;"
+!try "plugin('init'); cylinder 20.0, 60.0;"

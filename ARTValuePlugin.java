@@ -17,6 +17,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Sphere;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import uk.ac.rhul.cs.csle.art.fx.Transformer3D;
@@ -53,6 +55,14 @@ public class ARTValuePlugin extends AbstractValuePlugin {
       makeBox((double) args[1], (double) args[3], (double) args[2]);
       break;
 
+    case "sphere":
+      makeSphere((double) args[1]);
+      break;
+
+    case "cylinder":
+      makeCylinder((double) args[1], (double) args[2]);
+      break;
+
     default:
       Util.fatal("Unknown plugin operation: " + args[0]);
     }
@@ -62,6 +72,14 @@ public class ARTValuePlugin extends AbstractValuePlugin {
 
   private void makeBox(double x, double y, double z) {
     root.getChildren().add(new Box(x, y, z));
+  }
+
+  private void makeSphere(double radius) {
+    root.getChildren().add(new Sphere(radius));
+  }
+
+  private void makeCylinder(double radius, double height) {
+    root.getChildren().add(new Cylinder(radius, height));
   }
 
   private void initialise() {
