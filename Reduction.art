@@ -120,10 +120,15 @@
 -rotate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _YP, _Z),_sigP
 -rotate1 _X,_sig -> _XP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_XP, _Y, _Z),_sigP
 
+-inc --- inc(_X),_sig -> assign(_X, add(deref(_X), 1)),_sig
+-dec --- dec(_X),_sig -> assign(_X, sub(deref(_X), 1)),_sig
+
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^
 group ::= 'group'^ '{'^ seq '}'^
+inc ::= &ID '++'^ ';'^
+dec ::= &ID '--'^ ';'^
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
