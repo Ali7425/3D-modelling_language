@@ -1,5 +1,3 @@
-(* Reduction.art - project starter *)
-
 !configuration -> _sig::__map
 
 (* Term rewrite rules *)
@@ -17,19 +15,12 @@
 
 -ifTrueAST                       --- if(true,_C1,_C2),_sig -> _C1,_sig
 -ifFalseAST                      --- if(false,_C1,_C2),_sig -> _C2,_sig
--ifTruePrim  _b |> __bool(true)  --- if(_b,_C1,_C2),_sig -> _C1,_sig
--ifFalsePrim _b |> __bool(false) --- if(_b,_C1,_C2),_sig -> _C2,_sig
-
--ifTrueSingleAST                       --- if(true, _C),_sig -> _C,_sig
--ifFalseSingleAST                      --- if(false, _C),_sig -> __done,_sig
--ifTrueSinglePrim  _b |> __bool(true)  --- if(_b, _C),_sig -> _C,_sig
--ifFalseSinglePrim _b |> __bool(false) --- if(_b, _C),_sig -> __done,_sig
-
+-ifTrueSingle                    --- if(true, _C),_sig -> _C,_sig
+-ifFalseSingle                   --- if(false, _C),_sig -> __done,_sig
 -ifResolve       _E,_sig ->_EP,_sigP --- if(_E,_C1,_C2),_sig -> if(_EP,_C1,_C2),_sigP
 -ifResolveSingle _E,_sig ->_EP,_sigP --- if(_E,_C),_sig -> if(_EP,_C),_sigP
 
 -while --- while(_E,_C),_sig -> if(_E,seq(_C,while(_E,_C)),__done),_sig
--forDesugar --- for(_init, _cond, _update, _body), _sig -> seq(_init, while(_cond, seq(_body, _update))), _sig
 
 -gtReal _n1 |> __real64(_) _n2 |> __real64(_) --- gt(_n1, _n2),_sig -> __gt(_n1,_n2),_sig
 -gt  _n1 |> __int32(_)  _n2 |> __int32(_)     --- gt(_n1,_n2),_sig  -> __gt(_n1,_n2),_sig 
@@ -41,50 +32,34 @@
 -ltR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- lt(_n, _E2),_sig -> lt(_n,_I2),_sigP 
 -ltL _E1,_sig -> _I1,_sigP                    --- lt(_E1,_E2),_sig  -> lt(_I1,_E2),_sigP
 
--geReal _n1 |> __real64(_) _n2 |> __real64(_) --- ge(_n1, _n2),_sig -> __ge(_n1,_n2),_sig
--ge  _n1 |> __int32(_)  _n2 |> __int32(_)     --- ge(_n1,_n2),_sig  ->  __ge(_n1,_n2),_sig 
--geR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- ge(_n,_E2),_sig   -> ge(_n,_I2),_sigP
--geL _E1,_sig -> _I1,_sigP                    --- ge(_E1,_E2),_sig  -> ge(_I1,_E2),_sigP
-
--leReal _n1 |> __real64(_) _n2 |> __real64(_) --- le(_n1, _n2),_sig -> __le(_n1,_n2),_sig
--le _n1 |> __int32(_) _n2 |> __int32(_)       --- le(_n1,_n2),_sig -> __le(_n1, _n2),_sig
--leR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- le(_n, _E2),_sig -> le(_n,_I2),_sigP
--leL _E1,_sig -> _I1,_sigP                    --- le(_E1, _E2),_sig -> le(_I1,_E2),_sigP
-
--neReal _n1 |> __real64(_) _n2 |> __real64(_) --- ne(_n1, _n2),_sig -> __ne(_n1,_n2),_sig
--ne  _n1 |> __int32(_) _n2 |> __int32(_)      --- ne(_n1,_n2),_sig  -> __ne(_n1,_n2),_sig
--neR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- ne(_n,_E2) ,_sig  -> ne(_n,_I2),_sigP
--neL _E1,_sig -> _I1,_sigP                    --- ne(_E1,_E2),_sig  -> ne(_I1,_E2),_sigP
-
 -eqReal _n1 |> __real64(_) _n2 |> __real64(_) --- eq(_n1, _n2),_sig -> __eq(_n1,_n2),_sig
 -eq  _n1 |> __int32(_) _n2 |> __int32(_)      --- eq(_n1,_n2),_sig  -> __eq(_n1,_n2),_sig
 -eqR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- eq(_n,_E2) ,_sig  -> eq(_n,_I2),_sigP
 -eqL _E1,_sig -> _I1,_sigP                    --- eq(_E1,_E2),_sig  -> eq(_I1,_E2),_sigP
 
+-addReal _n1 |> __real64(_) _n2 |> __real64(_) --- add(_n1, _n2),_sig -> __add(_n1,_n2),_sig
+-add  _n1 |> __int32(_) _n2 |> __int32(_)     --- add(_n1,_n2),_sig  -> __add(_n1,_n2),_sig 
+-addR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- add(_n,_E2),_sig   -> add(_n,_I2),_sigP
+-addL _E1,_sig -> _I1,_sigP                   --- add(_E1,_E2),_sig  -> add(_I1,_E2),_sigP
+
 -subReal _n1 |> __real64(_) _n2 |> __real64(_) --- sub(_n1, _n2),_sig -> __sub(_n1,_n2),_sig
--sub  _n1 |> __int32(_) _n2 |> __int32(_)     --- sub(_n1,_n2),_sig -> __sub(_n1,_n2),_sig
--subR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- sub(_n,_E2),_sig  -> sub(_n,_I2),_sigP
--subL _E1,_sig -> _I1,_sigP                   --- sub(_E1,_E2),_sig -> sub(_I1,_E2),_sigP
+-sub  _n1 |> __int32(_) _n2 |> __int32(_)     --- sub(_n1,_n2),_sig  -> __sub(_n1,_n2),_sig 
+-subR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- sub(_n,_E2),_sig   -> sub(_n,_I2),_sigP
+-subL _E1,_sig -> _I1,_sigP                   --- sub(_E1,_E2),_sig  -> sub(_I1,_E2),_sigP
 
 -mulReal _n1 |> __real64(_) _n2 |> __real64(_) --- mul(_n1, _n2),_sig -> __mul(_n1,_n2),_sig
--mul _n1 |> __int32(_) _n2 |> __int32(_)      --- mul(_n1, _n2),_sig -> __mul(_n1, _n2),_sig
--mulR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- mul(_n,_E2),_sig -> mul(_n,_I2),_sigP
--mulL _E1,_sig -> _I1,_sigP                   --- mul(_E1, _E2),_sig -> mul(_I1, _E2),_sigP
-
--addReal _n1 |> __real64(_) _n2 |> __real64(_) --- add(_n1, _n2),_sig -> __add(_n1,_n2),_sig
--add _n1 |> __int32(_) _n2 |> __int32(_)      --- add(_n1, _n2),_sig -> __add(_n1, _n2),_sig
--addR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- add(_n,_E2),_sig -> add(_n,_I2),_sigP
--addL _E1,_sig -> _I1,_sigP                   --- add(_E1, _E2),_sig -> add(_I1, _E2),_sigP
+-mul  _n1 |> __int32(_) _n2 |> __int32(_)     --- mul(_n1,_n2),_sig -> __mul(_n1,_n2),_sig
+-mulR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- mul(_n,_E2),_sig  -> mul(_n,_I2),_sigP
+-mulL _E1,_sig -> _I1,_sigP                   --- mul(_E1,_E2),_sig -> mul(_I1,_E2),_sigP
 
 -divReal _n1 |> __real64(_) _n2 |> __real64(_) --- div(_n1, _n2),_sig -> __div(_n1,_n2),_sig
--div _n1 |> __int32(_) _n2 |> __int32(_)      --- div(_n1, _n2),_sig -> __div(_n1, _n2),_sig
--divR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- div(_n,_E2),_sig -> div(_n,_I2),_sigP
--divL _E1,_sig -> _I1,_sigP                   --- div(_E1, _E2),_sig -> div(_I1, _E2),_sigP
+-div  _n1 |> __int32(_) _n2 |> __int32(_)     --- div(_n1,_n2),_sig -> __div(_n1,_n2),_sig
+-divR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- div(_n,_E2),_sig  -> div(_n,_I2),_sigP
+-divL _E1,_sig -> _I1,_sigP                   --- div(_E1,_E2),_sig -> div(_I1,_E2),_sigP
 
--modReal _n1 |> __real64(_) _n2 |> __real64(_) --- mod(_n1, _n2),_sig -> __mod(_n1,_n2),_sig
--mod _n1 |> __int32(_) _n2 |> __int32(_)      --- mod(_n1, _n2),_sig -> __mod(_n1, _n2),_sig
--modR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- mod(_n,_E2),_sig -> mod(_n,_I2),_sigP
--modL _E1,_sig -> _I1,_sigP                   --- mod(_E1, _E2),_sig -> mod(_I1, _E2),_sigP
+-negReal _n |> __real64(_) --- neg(_n),_sig -> __sub(0.0, _n),_sig
+-negInt  _n |> __int32(_)  --- neg(_n),_sig -> __sub(0, _n),_sig
+-negR    _E,_sig -> _I,_sigP --- neg(_E),_sig -> neg(_I),_sigP
 
 -plugin --- plugin(_O),_sig -> __plugin(_O),_sig
 -plugin --- plugin(_O, _X),_sig -> __plugin(_O, _X),_sig
@@ -103,83 +78,80 @@
 -cylinder2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_X, _YP),_sigP
 -cylinder1 _X,_sig -> _XP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_XP, _Y),_sigP
 
--group --- group(_C),_sig -> seq(__plugin("groupStart"), seq(_C, __plugin("groupEnd"))),_sig
-
 -translate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- translate(_X, _Y, _Z),_sig -> __plugin("translate", _X, _Y, _Z),_sig
 -translate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _Y, _ZP),_sigP
 -translate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _YP, _Z),_sigP
 -translate1 _X,_sig -> _XP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_XP, _Y, _Z),_sigP
-
--scale  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- scale(_X, _Y, _Z),_sig -> __plugin("scale", _X, _Y, _Z),_sig
--scale3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _Y, _ZP),_sigP
--scale2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _YP, _Z),_sigP
--scale1 _X,_sig -> _XP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_XP, _Y, _Z),_sigP
 
 -rotate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- rotate(_X, _Y, _Z),_sig -> __plugin("rotate", _X, _Y, _Z),_sig
 -rotate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _Y, _ZP),_sigP
 -rotate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _YP, _Z),_sigP
 -rotate1 _X,_sig -> _XP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_XP, _Y, _Z),_sigP
 
+-scale  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- scale(_X, _Y, _Z),_sig -> __plugin("scale", _X, _Y, _Z),_sig
+-scale3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _Y, _ZP),_sigP
+-scale2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _YP, _Z),_sigP
+-scale1 _X,_sig -> _XP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_XP, _Y, _Z),_sigP
+
+-groupBlock --- group(_C),_sig -> seq(__plugin("groupStart"), seq(_C, __plugin("groupEnd"))),_sig
+
 -inc --- inc(_X),_sig -> assign(_X, add(deref(_X), 1)),_sig
 -dec --- dec(_X),_sig -> assign(_X, sub(deref(_X), 1)),_sig
 
--switchNext --- switch(_E, seq(case(_V, _C), _Rest)),_sig -> if(eq(_E, _V), _C, switch(_E, _Rest)),_sig
+-switchNext --- switch(_E, cases(case(_V, _C), _Rest)),_sig -> if(eq(_E, _V), _C, switch(_E, _Rest)),_sig
 -switchEnd  --- switch(_E, case(_V, _C)),_sig -> if(eq(_E, _V), _C, __done),_sig
 -switchRes  _E,_sig -> _EP,_sigP --- switch(_E, _C),_sig -> switch(_EP, _C),_sigP
 
-// Define: Store the body of the proc in the signal under the name _ID
 -procDef --- proc(_ID, _Body),_sig -> __done, __put(_sig, _ID, _Body)
-
-// Call: Look up the name and execute the body
 -procCall --- call(_ID),_sig -> __get(_sig, _ID),_sig
+
 
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^ | switch^^ | proc^^ | call^^
-group ::= 'group'^ '{'^ seq '}'^
+
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ 
+            | cylinder^^ ';'^ | translate^^ ';'^ | rotate^^ ';'^ | scale^^ ';'^
+            | group^^ | inc^^ | dec^^ | switch^^ | proc^^ | call^^
+
+group ::= '{'^ seq '}'^
 inc ::= &ID '++'^ ';'^
 dec ::= &ID '--'^ ';'^
+
 switch ::= 'switch'^ expression '{'^ cases '}'^
 cases ::= case^^ | case cases
 case ::= 'case'^ expression ':'^ statement
+
 proc ::= 'procedure'^ &ID '{'^ seq '}'^
 call ::= 'call'^ &ID ';'^
+
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
-statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
 if ::= 'if'^ expression 'then'^ statement | 'if'^ expression 'then'^ statement 'else'^ statement
+
 plugin ::= 'plugin'^ '('^ expressions^ ')'^  
+expressions ::= expression | expression ','^ expressions^
+
 box ::= 'box'^ expression ','^ expression ','^ expression
 sphere ::= 'sphere'^ expression
 cylinder ::= 'cylinder'^ expression ','^ expression
 translate ::= 'translate'^ expression ','^ expression ','^ expression
-scale ::= 'scale'^ expression ','^ expression ','^ expression
 rotate ::= 'rotate'^ expression ','^ expression ','^ expression
-expressions ::= expression | expression ','^ expressions^
+scale ::= 'scale'^ expression ','^ expression ','^ expression
 
 expression ::= rels^^
-
-// 1. New relational operator grammer rules
-rels ::= adds^^ | gt^^| lt^^ | ge^^ | le^^ | eq^^ | ne^^
+rels ::= adds^^ | gt^^ | lt^^ | eq^^
   gt ::= adds '>'^ adds
   lt ::= adds '<'^ adds
-  ge ::= adds '>='^ adds
-  le ::= adds '<='^ adds
   eq ::= adds '=='^ adds
-  ne ::= adds '!='^ adds
 
-// 2. Addition and Subtraction rules
 adds ::= muls^^ | add^^ | sub^^
    add ::= adds '+'^ muls
    sub ::= adds '-'^ muls
 
-// 3. Multiplication, Division and Modulo grammer rules
-muls ::= operand^^ | mul^^ | div ^^ | mod^^
+muls ::= operand^^ | mul^^ | div ^^
   mul ::= muls '*'^ operand
   div ::= muls '/'^ operand
-  mod ::= muls '%'^ operand
 
-// 4. Base Values 
 operand ::= __real64^^ | __int32^^ | 'true'^^ | 'false'^^ | deref^^ | __string^^ | plugin^^ | neg^^
 neg ::= '-'^ operand
 __real64 ::= &REAL
@@ -187,41 +159,235 @@ __int32 ::= &INTEGER
 deref ::= &ID
 __string ::= &STRING_SQ
 
+
 (* Tests *)
+
+// Some test have been commented out for efficiency
+// When testing 3D images, please only have 1 set of tests uncommented for clarity.
+
+// --- 1. Original Math & Control Flow Tests ---
 !try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
 !try "is_working := true; x := 10; if x > 5 then y := 100; else y := 0;"
 !try "decimal_math := 10.5 + 2.2; is_bigger := 10.5 > 2.2;"
 
-// --- 3D GRAPHICS TESTS (ONLY LEAVE ONE UNCOMMENTED AT A TIME!) ---
-
+// --- 2. Basic 3D Tests ---
 //!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
 //!try "plugin('init'); sphere 50.0;"
 //!try "plugin('init'); cylinder 20.0, 60.0;"
 
-// Test for translation. If it is being tested, please comment out the previous test shape
+// --- 3. Translation Test ---
 //!try "plugin('init'); box 20.0, 20.0, 20.0; translate 50.0, 0.0, 0.0; sphere 30.0; translate 0.0 - 50.0, 0.0, 0.0;"
 
-// Please only test the grouping when other 3d shape tests are commented out
+// --- 4. Grouping Test ---
 !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 20.0, 0.0; cylinder 10.0, 40.0; translate 0.0, -20.0, 0.0; } translate 100.0, 0.0, 0.0; rotate 45.0, 45.0, 45.0;"
 
-// This tests features "++", switch statements and procedure called draw_tower."
+// --- 5. Test for switch, incrementing and procedures ---
+!configuration -> _sig::__map
+
+(* Term rewrite rules *)
+-assign  _n |> __int32(_)    --- assign(_X,_n),_sig -> __done,__put(_sig,_X,_n)
+-assignReal _n |> __real64(_) --- assign(_X,_n),_sig -> __done,__put(_sig,_X,_n)
+-assignTrue                  --- assign(_X, true),_sig -> __done,__put(_sig,_X,true)
+-assignFalse                 --- assign(_X, false),_sig -> __done,__put(_sig,_X,false)
+-assignBool _b |> __bool(_)  --- assign(_X, _b),_sig -> __done,__put(_sig,_X,_b)
+-assignR _E,_sig -> _I,_sigP --- assign(_X,_E),_sig -> assign(_X,_I),_sigP
+
+-deref --- deref(_R),_sig -> __get(_sig,_R),_sig
+
+-sequenceDone                    --- seq(__done, _C),_sig -> _C,_sig
+-sequence _C1,_sig -> _C1P,_sigP --- seq(_C1,_C2),_sig -> seq(_C1P,_C2),_sigP
+
+-ifTrueAST                       --- if(true,_C1,_C2),_sig -> _C1,_sig
+-ifFalseAST                      --- if(false,_C1,_C2),_sig -> _C2,_sig
+-ifTrueSingle                    --- if(true, _C),_sig -> _C,_sig
+-ifFalseSingle                   --- if(false, _C),_sig -> __done,_sig
+-ifResolve       _E,_sig ->_EP,_sigP --- if(_E,_C1,_C2),_sig -> if(_EP,_C1,_C2),_sigP
+-ifResolveSingle _E,_sig ->_EP,_sigP --- if(_E,_C),_sig -> if(_EP,_C),_sigP
+
+-while --- while(_E,_C),_sig -> if(_E,seq(_C,while(_E,_C)),__done),_sig
+
+-gtReal _n1 |> __real64(_) _n2 |> __real64(_) --- gt(_n1, _n2),_sig -> __gt(_n1,_n2),_sig
+-gt  _n1 |> __int32(_)  _n2 |> __int32(_)     --- gt(_n1,_n2),_sig  -> __gt(_n1,_n2),_sig 
+-gtR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- gt(_n,_E2),_sig   -> gt(_n,_I2),_sigP
+-gtL _E1,_sig -> _I1,_sigP                    --- gt(_E1,_E2),_sig  -> gt(_I1,_E2),_sigP
+
+-ltReal _n1 |> __real64(_) _n2 |> __real64(_) --- lt(_n1, _n2),_sig -> __lt(_n1,_n2),_sig
+-lt  _n1 |> __int32(_) _n2 |> __int32(_)      --- lt(_n1, _n2),_sig -> __lt(_n1, _n2),_sig
+-ltR _n |> __int32(_) _E2,_sig -> _I2,_sigP   --- lt(_n, _E2),_sig -> lt(_n,_I2),_sigP 
+-ltL _E1,_sig -> _I1,_sigP                    --- lt(_E1,_E2),_sig  -> lt(_I1,_E2),_sigP
+
+-eqReal _n1 |> __real64(_) _n2 |> __real64(_) --- eq(_n1, _n2),_sig -> __eq(_n1,_n2),_sig
+-eq  _n1 |> __int32(_) _n2 |> __int32(_)      --- eq(_n1,_n2),_sig  -> __eq(_n1,_n2),_sig
+-eqR _n |> __int32(_)  _E2,_sig -> _I2,_sigP  --- eq(_n,_E2) ,_sig  -> eq(_n,_I2),_sigP
+-eqL _E1,_sig -> _I1,_sigP                    --- eq(_E1,_E2),_sig  -> eq(_I1,_E2),_sigP
+
+-addReal _n1 |> __real64(_) _n2 |> __real64(_) --- add(_n1, _n2),_sig -> __add(_n1,_n2),_sig
+-add  _n1 |> __int32(_) _n2 |> __int32(_)     --- add(_n1,_n2),_sig  -> __add(_n1,_n2),_sig 
+-addR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- add(_n,_E2),_sig   -> add(_n,_I2),_sigP
+-addL _E1,_sig -> _I1,_sigP                   --- add(_E1,_E2),_sig  -> add(_I1,_E2),_sigP
+
+-subReal _n1 |> __real64(_) _n2 |> __real64(_) --- sub(_n1, _n2),_sig -> __sub(_n1,_n2),_sig
+-sub  _n1 |> __int32(_) _n2 |> __int32(_)     --- sub(_n1,_n2),_sig  -> __sub(_n1,_n2),_sig 
+-subR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- sub(_n,_E2),_sig   -> sub(_n,_I2),_sigP
+-subL _E1,_sig -> _I1,_sigP                   --- sub(_E1,_E2),_sig  -> sub(_I1,_E2),_sigP
+
+-mulReal _n1 |> __real64(_) _n2 |> __real64(_) --- mul(_n1, _n2),_sig -> __mul(_n1,_n2),_sig
+-mul  _n1 |> __int32(_) _n2 |> __int32(_)     --- mul(_n1,_n2),_sig -> __mul(_n1,_n2),_sig
+-mulR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- mul(_n,_E2),_sig  -> mul(_n,_I2),_sigP
+-mulL _E1,_sig -> _I1,_sigP                   --- mul(_E1,_E2),_sig -> mul(_I1,_E2),_sigP
+
+-divReal _n1 |> __real64(_) _n2 |> __real64(_) --- div(_n1, _n2),_sig -> __div(_n1,_n2),_sig
+-div  _n1 |> __int32(_) _n2 |> __int32(_)     --- div(_n1,_n2),_sig -> __div(_n1,_n2),_sig
+-divR _n |> __int32(_) _E2,_sig -> _I2,_sigP  --- div(_n,_E2),_sig  -> div(_n,_I2),_sigP
+-divL _E1,_sig -> _I1,_sigP                   --- div(_E1,_E2),_sig -> div(_I1,_E2),_sigP
+
+-negReal _n |> __real64(_) --- neg(_n),_sig -> __sub(0.0, _n),_sig
+-negInt  _n |> __int32(_)  --- neg(_n),_sig -> __sub(0, _n),_sig
+-negR    _E,_sig -> _I,_sigP --- neg(_E),_sig -> neg(_I),_sigP
+
+-plugin --- plugin(_O),_sig -> __plugin(_O),_sig
+-plugin --- plugin(_O, _X),_sig -> __plugin(_O, _X),_sig
+-plugin --- plugin(_O, _X, _Y),_sig -> __plugin(_O, _X, _Y),_sig
+-plugin --- plugin(_O, _X, _Y, _Z),_sig -> __plugin(_O, _X, _Y, _Z),_sig
+
+-box   _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- box(_X, _Y, _Z),_sig -> __plugin("box", _X, _Y, _Z),_sig
+-box3  _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- box(_X, _Y, _Z),_sig -> box(_X, _Y, _ZP),_sigP
+-box2  _X |> __real64(_) _Y,_sig -> _YP,_sigP --- box(_X, _Y, _Z),_sig -> box(_X, _YP, _Z),_sigP
+-box1  _X,_sig -> _XP,_sigP --- box(_X, _Y, _Z),_sig -> box(_XP, _Y, _Z),_sigP
+
+-sphere  _X |> __real64(_)    --- sphere(_X),_sig -> __plugin("sphere", _X),_sig
+-sphere1 _X,_sig -> _XP,_sigP --- sphere(_X),_sig -> sphere(_XP),_sigP
+
+-cylinder  _X |> __real64(_) _Y |> __real64(_) --- cylinder(_X, _Y),_sig -> __plugin("cylinder", _X, _Y),_sig
+-cylinder2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_X, _YP),_sigP
+-cylinder1 _X,_sig -> _XP,_sigP --- cylinder(_X, _Y),_sig -> cylinder(_XP, _Y),_sigP
+
+-translate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- translate(_X, _Y, _Z),_sig -> __plugin("translate", _X, _Y, _Z),_sig
+-translate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _Y, _ZP),_sigP
+-translate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_X, _YP, _Z),_sigP
+-translate1 _X,_sig -> _XP,_sigP --- translate(_X, _Y, _Z),_sig -> translate(_XP, _Y, _Z),_sigP
+
+-rotate  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- rotate(_X, _Y, _Z),_sig -> __plugin("rotate", _X, _Y, _Z),_sig
+-rotate3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _Y, _ZP),_sigP
+-rotate2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_X, _YP, _Z),_sigP
+-rotate1 _X,_sig -> _XP,_sigP --- rotate(_X, _Y, _Z),_sig -> rotate(_XP, _Y, _Z),_sigP
+
+-scale  _X |> __real64(_) _Y |> __real64(_) _Z |> __real64(_) --- scale(_X, _Y, _Z),_sig -> __plugin("scale", _X, _Y, _Z),_sig
+-scale3 _X |> __real64(_) _Y |> __real64(_) _Z,_sig -> _ZP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _Y, _ZP),_sigP
+-scale2 _X |> __real64(_) _Y,_sig -> _YP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_X, _YP, _Z),_sigP
+-scale1 _X,_sig -> _XP,_sigP --- scale(_X, _Y, _Z),_sig -> scale(_XP, _Y, _Z),_sigP
+
+-groupBlock --- group(_C),_sig -> seq(__plugin("groupStart"), seq(_C, __plugin("groupEnd"))),_sig
+
+-inc --- inc(_X),_sig -> assign(_X, add(deref(_X), 1)),_sig
+-dec --- dec(_X),_sig -> assign(_X, sub(deref(_X), 1)),_sig
+
+-switchNext --- switch(_E, cases(case(_V, _C), _Rest)),_sig -> if(eq(_E, _V), _C, switch(_E, _Rest)),_sig
+-switchEnd  --- switch(_E, case(_V, _C)),_sig -> if(eq(_E, _V), _C, __done),_sig
+-switchRes  _E,_sig -> _EP,_sigP --- switch(_E, _C),_sig -> switch(_EP, _C),_sigP
+
+-procDef --- proc(_ID, _Body),_sig -> __done, __put(_sig, _ID, _Body)
+-procCall --- call(_ID),_sig -> __get(_sig, _ID),_sig
+
+
+(* CFG rules *)
+seq ::= statement^^ | statement seq 
+
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ 
+            | cylinder^^ ';'^ | translate^^ ';'^ | rotate^^ ';'^ | scale^^ ';'^
+            | group^^ | inc^^ | dec^^ | switch^^ | proc^^ | call^^
+
+group ::= '{'^ seq '}'^
+inc ::= &ID '++'^ ';'^
+dec ::= &ID '--'^ ';'^
+
+switch ::= 'switch'^ expression '{'^ cases '}'^
+cases ::= case^^ | case cases
+case ::= 'case'^ expression ':'^ statement
+
+proc ::= 'procedure'^ &ID '{'^ seq '}'^
+call ::= 'call'^ &ID ';'^
+
+assign ::= &ID ':='^ expression ';'^
+while ::= 'while'^ expression 'do'^ statement
+if ::= 'if'^ expression 'then'^ statement | 'if'^ expression 'then'^ statement 'else'^ statement
+
+plugin ::= 'plugin'^ '('^ expressions^ ')'^  
+expressions ::= expression | expression ','^ expressions^
+
+box ::= 'box'^ expression ','^ expression ','^ expression
+sphere ::= 'sphere'^ expression
+cylinder ::= 'cylinder'^ expression ','^ expression
+translate ::= 'translate'^ expression ','^ expression ','^ expression
+rotate ::= 'rotate'^ expression ','^ expression ','^ expression
+scale ::= 'scale'^ expression ','^ expression ','^ expression
+
+expression ::= rels^^
+rels ::= adds^^ | gt^^ | lt^^ | eq^^
+  gt ::= adds '>'^ adds
+  lt ::= adds '<'^ adds
+  eq ::= adds '=='^ adds
+
+adds ::= muls^^ | add^^ | sub^^
+   add ::= adds '+'^ muls
+   sub ::= adds '-'^ muls
+
+muls ::= operand^^ | mul^^ | div ^^
+  mul ::= muls '*'^ operand
+  div ::= muls '/'^ operand
+
+operand ::= __real64^^ | __int32^^ | 'true'^^ | 'false'^^ | deref^^ | __string^^ | plugin^^ | neg^^
+neg ::= '-'^ operand
+__real64 ::= &REAL
+__int32 ::= &INTEGER
+deref ::= &ID
+__string ::= &STRING_SQ
+
+
+(* Tests *)
+
+// --- 1. Original Math & Control Flow Tests ---
+!try "a := 5 + 10 * 2; b := 100 / 2; c := a < b; d := a == 25;"
+!try "is_working := true; x := 10; if x > 5 then y := 100; else y := 0;"
+!try "decimal_math := 10.5 + 2.2; is_bigger := 10.5 > 2.2;"
+
+// --- 2. Original Basic 3D Tests ---
+//!try "plugin('init'); box 10.0 + 10.0, 5.0 * 2.0, 40.0;"
+//!try "plugin('init'); sphere 50.0;"
+//!try "plugin('init'); cylinder 20.0, 60.0;"
+
+// --- 3. Isolated Translation Tests ---
+
+// 3a. Test Box Translation (Moves a box 50 units to the right)
+//!try "plugin('init'); box 20.0, 20.0, 20.0; translate 50.0, 0.0, 0.0;"
+
+// 3b. Test Sphere Translation (Moves a sphere 50 units up)
+//!try "plugin('init'); sphere 30.0; translate 0.0, 50.0, 0.0;"
+
+// 3c. Test Cylinder Translation (Moves a cylinder 50 units forward)
+//!try "plugin('init'); cylinder 15.0, 40.0; translate 0.0, 0.0, 50.0;"
+
+// --- 4. Original Grouping Test ---
+//!try "plugin('init'); { box 20.0, 20.0, 20.0; translate 0.0, 20.0, 0.0; cylinder 10.0, 40.0; translate 0.0, -20.0, 0.0; } translate 100.0, 0.0, 0.0; rotate 45.0, 45.0, 45.0;"
+
+// --- 5. Test for switch, +++ incrementing and procedures in one test. ---
 !try "
   plugin('init');
   procedure draw_tower {
-    group {
       box 10.0, 40.0, 10.0;
       translate 0.0, 20.0, 0.0;
-    }
   }
 
   i := 1;
   while i < 4 do {
+    call draw_tower;
+    
     switch i {
       case 1: translate 50.0, 0.0, 0.0;
-      case 2: translate 0.0, 50.0, 0.0;
-      case 3: rotate 45.0, 0.0, 0.0;
+      case 2: translate -50.0, 0.0, 0.0;
+      case 3: translate 0.0, 0.0, 50.0;
     }
-    call draw_tower;
+    
     i++;
   }
 "
