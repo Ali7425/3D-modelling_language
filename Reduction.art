@@ -127,9 +127,15 @@
 -switchEnd  --- switch(_E, case(_V, _C)),_sig -> if(eq(_E, _V), _C, __done),_sig
 -switchRes  _E,_sig -> _EP,_sigP --- switch(_E, _C),_sig -> switch(_EP, _C),_sigP
 
+// Define: Store the body of the proc in the signal under the name _ID
+-procDef --- proc(_ID, _Body),_sig -> __done, __put(_sig, _ID, _Body)
+
+// Call: Look up the name and execute the body
+-procCall --- call(_ID),_sig -> __get(_sig, _ID),_sig
+
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^ | switch^^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^ | switch^^ | proc^^ | call^^
 group ::= 'group'^ '{'^ seq '}'^
 inc ::= &ID '++'^ ';'^
 dec ::= &ID '--'^ ';'^
