@@ -123,12 +123,19 @@
 -inc --- inc(_X),_sig -> assign(_X, add(deref(_X), 1)),_sig
 -dec --- dec(_X),_sig -> assign(_X, sub(deref(_X), 1)),_sig
 
+-switchNext --- switch(_E, seq(case(_V, _C), _Rest)),_sig -> if(eq(_E, _V), _C, switch(_E, _Rest)),_sig
+-switchEnd  --- switch(_E, case(_V, _C)),_sig -> if(eq(_E, _V), _C, __done),_sig
+-switchRes  _E,_sig -> _EP,_sigP --- switch(_E, _C),_sig -> switch(_EP, _C),_sigP
+
 (* CFG rules *)
 seq ::= statement^^ | statement seq 
-statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^
+statement ::= assign^^ | while^^ | if^^ | plugin^^ ';'^ | box^^ ';'^ | sphere^^ ';'^ | cylinder^^ ';'^ | translate^^ ';'^ | scale^^ ';'^ | rotate^^ ';'^ | group^^ | inc^^ | dec^^ | switch^^
 group ::= 'group'^ '{'^ seq '}'^
 inc ::= &ID '++'^ ';'^
 dec ::= &ID '--'^ ';'^
+switch ::= 'switch'^ expression '{'^ cases '}'^
+cases ::= case^^ | case cases
+case ::= 'case'^ expression ':'^ statement
 assign ::= &ID ':='^ expression ';'^
 while ::= 'while'^ expression 'do'^ statement
 statement ::= 'for'^ assign expression ';'^ assign 'do'^ statement
