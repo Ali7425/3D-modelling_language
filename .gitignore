@@ -1,2 +1,28 @@
 *.class
 .DS_Store
+
+# --- ART generated outputs ---
+ARTGeneratedActions.java
+ARTGeneratedActions*.class
+derivation.dot
+*.dot
+
+# --- Java build artifacts ---
+*.class
+*.jar
+hs_err_pid*.log
+
+# --- IDE / build tool noise ---
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+bin/
+out/
+target/
+
+# --- Windows ---
+Thumbs.db
+Desktop.ini

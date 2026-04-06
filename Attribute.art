@@ -38,4 +38,4 @@ STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(
 INTEGER              ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
 
 //!generate actions 
-!try "a := 6; b := 9; while a != b do if a > b then a := a - b; else b := b - a; gcd := a; plugin('init'); x:= plugin('invert', 31);"
+!try "plugin('init'); plugin('box', 40, 40, 40);"
