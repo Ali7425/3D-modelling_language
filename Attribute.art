@@ -3,8 +3,56 @@
 //!interpreter attributeAction
 !support
 !! import java.util.Map; import java.util.HashMap; !!
-!! Map<String, Integer> variables = new HashMap<>(); 
-   Map<String, AbstractAttributeBlock> procedures = new HashMap<>(); !!
+!! Map<String, Object> variables = new HashMap<>(); 
+   Map<String, AbstractAttributeBlock> procedures = new HashMap<>(); 
+   Object currentSwitchValue = null;
+   boolean switchMatched = false;
+
+   double num(Object v) {
+    if (v instanceof Integer) return ((Integer) v).doubleValue();
+    if (v instanceof Double) return (Double) v;
+    thow new RuntimeException ("Expected numeric balue, got " + v)
+   }
+
+   boolean truth(Object v) {
+    if (v instanceof Boolean) return (Boolean) v;
+    if (v instanceof Integer return ((Integr) v)) != 0;
+    if (v instanceof Double) return ((Double) v) != 0.0;
+    throw new RuntimeException("Expected boolean-like value and got: " + v)
+   }
+
+   boolean same(Object a, Oblect b){
+    if ((a instanceof Integer || a instanceof Double) && (b instabceof Integer || b instanceof Double))
+      return num(a) == num(b);
+    return a.equals(b);
+   }
+
+   Object addV (Object a, Object b) {
+    if (a instanceof Double || b instanceof Double) return num(a) + num(b);
+    return ((Integer) a) + ((Integer) b);
+   }
+
+   Object subV(Object a, Object b) {
+    if (a instanceof Double || b instanceof Double) return num(a) - num(b);
+    return ((Integer) a) - ((Integer) b); 
+   }
+
+      Object mulV(Object a, Object b) {
+     if (a instanceof Double || b instanceof Double) return num(a) * num(b);
+     return ((Integer) a) * ((Integer) b);
+   }
+
+   Object divV(Object a, Object b) {
+     if (a instanceof Double || b instanceof Double) return num(a) / num(b);
+     return ((Integer) a) / ((Integer) b);
+   }
+
+   Object negV(Object a) {
+     if (a instanceof Double) return -((Double) a);
+     return -((Integer) a);
+   }
+  
+!!
 
 statements ::= statement statements
 | statement !! System.out.println("Final variable map " + variables); !! 
