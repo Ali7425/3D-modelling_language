@@ -38,4 +38,4 @@ STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(
 INTEGER              ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
 
 //!generate actions 
-!try "plugin('init'); plugin('box', 40, 40, 40);"
+!try "plugin('init'); plugin('box', 40.0, 40.0, 40.0);"
