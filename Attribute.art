@@ -83,7 +83,8 @@ e2 ::= INTEGER !!e2.v = INTEGER1.v; !!                  // Integer literal
 // Lexical rules
 ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
 STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(); !!
-INTEGER              ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
+INTEGER  <v::Integer>            ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
+REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 
 //!generate actions 
 !try "plugin('init'); plugin('box', 40.0, 40.0, 40.0);"
