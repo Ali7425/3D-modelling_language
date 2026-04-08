@@ -58,7 +58,8 @@ statements ::= statement statements
 | statement !! System.out.println("Final variable map " + variables); !! 
 
 statement ::= 
-  ID ':=' e0 ';' !! variables.put(ID1.v, e01.v); !!     // assignment 
+  ID ':=' e0 ';' !! variables.put(ID1.v, e01.v); !!     // assignment
+| '{' statements!< '}' !! interpret(statements1); !!   
 | 'if' e0 'then' statement!< 'else' statement!<                // if statement 
   !! if (e01.v != 0) interpret(statement1); else interpret(statement2); !! 
 | 'while' e0!< 'do' statement!<                         // while statement 
