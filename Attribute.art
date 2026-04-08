@@ -102,6 +102,10 @@ STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(
 INTEGER  <v::Integer>            ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
 REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 
-// Tests
+// Test 1: If and While Loops
 !try "if true then x := 1; else x := 2;"
 !try "x := 3; while x > 0 do { x := x - 1; }"
+
+// Test 2: Procedures
+!try "procedure p { x := 99; } call p;"
+!try "procedure p { x := x + 1; } x := 5; call p;"
