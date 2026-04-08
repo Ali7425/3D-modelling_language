@@ -11,18 +11,18 @@
    double num(Object v) {
     if (v instanceof Integer) return ((Integer) v).doubleValue();
     if (v instanceof Double) return (Double) v;
-    thow new RuntimeException ("Expected numeric balue, got " + v)
+    throw new RuntimeException ("Expected numeric value, got " + v);
    }
 
    boolean truth(Object v) {
     if (v instanceof Boolean) return (Boolean) v;
-    if (v instanceof Integer return ((Integr) v)) != 0;
+    if (v instanceof Integer) return ((Integer) v) != 0;
     if (v instanceof Double) return ((Double) v) != 0.0;
-    throw new RuntimeException("Expected boolean-like value and got: " + v)
+    throw new RuntimeException("Expected boolean-like value and got: " + v);
    }
 
-   boolean same(Object a, Oblect b){
-    if ((a instanceof Integer || a instanceof Double) && (b instabceof Integer || b instanceof Double))
+   boolean same(Object a, Object b){
+    if ((a instanceof Integer || a instanceof Double) && (b instanceof Integer || b instanceof Double))
       return num(a) == num(b);
     return a.equals(b);
    }
@@ -68,13 +68,13 @@ statement ::=
 | 'plugin' '(' STRING_SQ ',' e0 ')' ';'!! plugin(STRING_SQ1.v, e01.v); !!
 | 'plugin' '(' STRING_SQ ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v); !!
 | 'plugin' '(' STRING_SQ  ',' e0 ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v, e03.v); !!
-| 'plugin' '(' STRING_SQ ',' e0 ')' !! e3.v = plugin(STRING_SQ1.v, e01.v); !!
+
 
 // Expression grammer with Object values
 
-e0 <v::Object> ::=  e1 !! e0.v = e11.v!! 
-  | e1 '>' e1 !! e0.v = num(e11.v) > num(12.v); !!
-  | e1 '<' e1 !! e0.v = num(e11.v) < num(12.v); !!
+e0 <v::Object> ::=  e1 !! e0.v = e11.v; !! 
+  | e1 '>' e1 !! e0.v = num(e11.v) > num(e12.v); !!
+  | e1 '<' e1 !! e0.v = num(e11.v) < num(e12.v); !!
   | e1 '==' e1 !! e0.v = same(e11.v, e12.v); !!
   | e1 '!=' e1 !! e0.v = !same(e11.v, e12.v); !!
 
@@ -94,6 +94,7 @@ e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
   | '-' e3  !! e3.v = negV(e31.v); !!
   | '(' e0 ')' !! e3.v = e01.v; !!
   | STRING_SQ !! e3.v = STRING_SQ1.v; !!
+  | 'plugin' '(' STRING_SQ ',' e0 ')' !! e3.v = plugin(STRING_SQ1.v, e01.v); !!
 
 // Lexical rules
 ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
@@ -101,5 +102,6 @@ STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(
 INTEGER  <v::Integer>            ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
 REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 
-//!generate actions 
-!try "plugin('init'); plugin('box', 40.0, 40.0, 40.0);"
+// Tests
+!try "if true then x := 1; else x := 2;"
+!try "x := 3; while x > 0 do { x := x - 1; }"
