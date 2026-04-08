@@ -67,18 +67,32 @@ statement ::=
 | 'plugin' '(' STRING_SQ ',' e0 ')' ';'!! plugin(STRING_SQ1.v, e01.v); !!
 | 'plugin' '(' STRING_SQ ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v); !!
 | 'plugin' '(' STRING_SQ  ',' e0 ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v, e03.v); !!
+| 'plugin' '(' STRING_SQ ',' e0 ')' !! e3.v = plugin(STRING_SQ1.v, e01.v); !!
 
-e0 ::= e1 !! e0.v = e11.v; !!
-| e1 '>'  e1 !! e0.v = e11.v >  e12.v ? 1 : 0; !!       // Greater than 
-| e1 '!=' e1 !! e0.v = e11.v != e12.v ? 1 : 0; !!       // Not equal to 
+// Expression grammer with Object values
 
-e1 ::= e2 !! e1.v = e21.v; !!  
-| e1 '-' e2 !! e1.v = e11.v - e21.v; !!                 // Subtract 
+e0 <v::Object> ::=  e1 !! e0.v = e11.v!! 
+  | e1 '>' e1 !! e0.v = num(e11.v) > num(12.v); !!
+  | e1 '<' e1 !! e0.v = num(e11.v) < num(12.v); !!
+  | e1 '==' e1 !! e0.v = same(e11.v, e12.v); !!
+  | e1 '!=' e1 !! e0.v = !same(e11.v, e12.v); !!
 
-e2 ::= INTEGER !!e2.v = INTEGER1.v; !!                  // Integer literal 
-| ID !! e2.v = variables.get(ID1.v); !!                 // Variable access 
-| '(' e1 !! e2.v = e11.v; !! ')'                        // Parenthesised expression 
-| 'plugin' '(' STRING_SQ ',' e0 ')' !! e2.v = (int) plugin(STRING_SQ1.v, e01.v); !!
+e1 <v::Object> ::= e2 !! e1.v = e21.v; !!
+  | e1 '+' e2 !! e1.v = addV(e11.v, e21.v); !!
+  | e1 '-' e2 !! e1.v = subV(e11.v, e21.v); !!
+ 
+e2 <v::Object> ::= e3 !! e2.v = e31.v; !!
+  | e2 '*' e3 !! e2.v = mulV(e21.v, e31.v); !!
+  | e2 '/' e3 !! e2.v = divV(e21.v, e31.v); !!
+
+e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
+  | INTEGER !! e3.v = INTEGER1.v; !!
+  | 'true'  !! e3.v = true; !!
+  | 'false' !! e3.v = false; !!
+  | ID      !! e3.v = variables.get(ID1.v); !!
+  | '-' e3  !! e3.v = negV(e31.v); !!
+  | '(' e0 ')' !! e3.v = e01.v; !!
+  | STRING_SQ !! e3.v = STRING_SQ1.v; !!
 
 // Lexical rules
 ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
