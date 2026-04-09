@@ -43,6 +43,8 @@ public class ARTValuePlugin extends AbstractValuePlugin {
   final Stack<Group> groupStack = new Stack<>();
   double cameraDistance;
 
+  private boolean initialised = false;
+
   @Override
   public String description() {
     return "Adrian's example solid modelling plugin";
@@ -137,6 +139,9 @@ public class ARTValuePlugin extends AbstractValuePlugin {
   }
 
   private void initialise() {
+    if (initialised) return;
+    
+    initialised = true;
     groupStack.push(root);
     cameraDistance = cameraInitialDistance;
     root.getChildren().add(world);

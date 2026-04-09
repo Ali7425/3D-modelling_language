@@ -61,23 +61,38 @@ statements ::= statement statements
 statement ::=
   ID ':=' e0 ';' !! variables.put(ID1.v, e01.v); !!     // assignment
 | '{' statements!< '}' !! interpret(statements1); !!  // Procedure block 
+
 | 'if' e0 'then' statement!< 'else' statement!<                // if statement 
-  !! if (truth(e01.v)) interpret(statement1); else interpret(statement2); !! 
+  !! if (truth(e01.v)) interpret(statement1); else interpret(statement2); !!
+
 | 'while' e0!< 'do' statement!<                         // while statement 
-  !! interpret(e01); while (truth(e01.v)) { interpret(statement1); interpret(e01); } !! 
+  !! interpret(e01); while (truth(e01.v)) { interpret(statement1); interpret(e01); } !!
+
+// Incremental rules
 | ID '++' ';' !! variables.put(ID1.v, addV(variables.get(ID1.v), 1)); !! // Positive Increment
 | ID '--' ';' !! variables.put(ID1.v, subV(variables.get(ID1.v), 1)); !! // Negative Increment
+
+// Modelling rules
+| 'box' e0 ',' e0 ',' e0 ';' !! plugin ("box", num(e01.v), num(e02.v), num(e03.v)); !!
+| 'sphere' e0 ';' !! plugin ("sphere", num(e01.v)); !!
+| 'cylinder' e0 ',' e0 ';' !! plugin ("cylinder", num(e01.v), num(e02.v)); !!
+| 'translate' e0 ',' e0 ',' e0 ';' !! plugin("translate", num(e01.v), num(e02.v), num(e03.v)); !!
+| 'rotate' e0 ',' e0 ',' e0 ';' !! plugin("rotate", num(e01.v), num(e02.v), num(e03.v)); !!
+| 'scale' e0 ',' e0 ',' e0 ';' !! plugin("scale", num(e01.v), num(e02.v), num(e03.v)); !!
+
+
 | 'plugin' '(' STRING_SQ ')' ';' !! plugin(STRING_SQ1.v); !!
 | 'plugin' '(' STRING_SQ ',' e0 ')' ';'!! plugin(STRING_SQ1.v, e01.v); !!
 | 'plugin' '(' STRING_SQ ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v); !!
 | 'plugin' '(' STRING_SQ  ',' e0 ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v, e03.v); !!
+
 | PROCEDURE ID statement!<
     !! procedures.put(ID1.v, statement1); !!
 | CALL_KW ID ';'
     !! interpret(procedures.get(ID1.v)); !!
 
 
-// Expression grammer with Object values
+// Expression grammer with Object values:
 e0 <v::Object> ::=  e1 !! e0.v = e11.v; !! 
   | e1 '>' e1 !! e0.v = num(e11.v) > num(e12.v); !!
   | e1 '<' e1 !! e0.v = num(e11.v) < num(e12.v); !!
@@ -104,8 +119,8 @@ e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
 
 // Lexical rules
 
-  PROCEDURE ::= 'procedure'
-  CALL_KW  ::= 'call' 
+PROCEDURE ::= 'procedure'
+CALL_KW  ::= 'call' 
 
 ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
 STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(); !!
@@ -125,3 +140,12 @@ REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 !try "x := 5; x--;"
 !try "x := 2.5; x++;"
 !try "x := 2.5; x--;"
+
+// Test 4: Modelling statements - When testing, test 1 line at a time to prevent shape overlap:
+
+// !try "plugin('init'); box 40.0, 40.0, 40.0;"
+// !try "plugin('init'); sphere 20.0;"
+// !try "plugin('init'); cylinder 10.0, 40.0;"
+// !try "plugin('init'); box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0;"
+// !try "plugin('init'); box 20.0, 20.0, 20.0; rotate 45.0, 0.0, 0.0;"
+!try "plugin('init'); box 20.0, 20.0, 20.0; scale 2.0, 1.0, 1.0;"
