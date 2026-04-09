@@ -54,8 +54,10 @@
   
 !!
 
+program ::= statements !! System.out.println("Final variable map " + variables); !!
+
 statements ::= statement statements
-| statement !! System.out.println("Final variable map " + variables); !! 
+| statement
 
 // Statement rules:
 statement ::=
@@ -81,11 +83,16 @@ statement ::=
 | 'scale' e0 ',' e0 ',' e0 ';' !! plugin("scale", num(e01.v), num(e02.v), num(e03.v)); !!
 
 // Grouping statement
-| 'group' '{' statements!< '}'
+| GROUP_KW '{' statements!< '}'
   !! plugin("groupStart");
-    interpret(statements1);
-    plugin("groupEnd"); !!
+     interpret(statements1);
+     plugin("groupEnd"); !!
 
+// Switch statements
+| SWITCH_KW e0 '{' switchCases!< '}'
+  !! currentSwitchValue = e01.v;
+     switchMatched = false;
+     interpret(switchCases1); !!
 
 | 'plugin' '(' STRING_SQ ')' ';' !! plugin(STRING_SQ1.v); !!
 | 'plugin' '(' STRING_SQ ',' e0 ')' ';'!! plugin(STRING_SQ1.v, e01.v); !!
@@ -97,6 +104,16 @@ statement ::=
 | CALL_KW ID ';'
     !! interpret(procedures.get(ID1.v)); !!
 
+
+// Switch statement case rules
+ switchCases ::=  switchCase!<
+  | switchCase!< switchCases!<
+    !! interpret(switchCase1); interpret(switchCases1); !!
+switchCase ::= CASE_KW e0 ':' statement!<
+  !! if (!switchMatched && same(currentSwitchValue, e01.v)){
+      switchMatched = true;
+      interpret(statement1);
+    } !!
 
 
 
@@ -129,6 +146,9 @@ e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
 
 PROCEDURE ::= 'procedure'
 CALL_KW  ::= 'call' 
+GROUP_KW ::= 'group'
+SWITCH_KW ::= 'switch'
+CASE_KW ::= 'case'
 
 ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
 STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(); !!
@@ -162,3 +182,8 @@ REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; sphere 20.0; translate 0.0, -30.0, 0.0; }"
 !try "plugin('init'); group { box 20.0, 20.0, 20.0; sphere 10.0; }"
 !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; cylinder 10.0, 40.0; }"
+
+// Switch Statement tests:
+!try "x := 2; switch x { case 1: y := 10; case 2: y := 20; }"
+!try "x := 1; switch x { case 1: y := 99; case 2: y := 20; }"
+!try "x := 3; switch x { case 1: y := 10; case 2: y := 20; }"
