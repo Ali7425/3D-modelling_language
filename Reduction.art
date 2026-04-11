@@ -8,6 +8,9 @@
 -assignBool _b |> __bool(_)  --- assign(_X, _b),_sig -> __done,__put(_sig,_X,_b)
 -assignR _E,_sig -> _I,_sigP --- assign(_X,_E),_sig -> assign(_X,_I),_sigP
 
+-trueLit  --- true,_sig  -> __bool(true),_sig
+-falseLit --- false,_sig -> __bool(false),_sig
+
 -deref --- deref(_R),_sig -> __get(_sig,_R),_sig
 
 -sequenceDone                    --- seq(__done, _C),_sig -> _C,_sig
