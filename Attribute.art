@@ -128,8 +128,9 @@ statement ::=
 (* ============================================================ *)
 
 switchCases ::= switchCase!<
-  | switchCase!< switchCases!<
-    !! interpret(switchCase1); interpret(switchCases1); !!
+  !! interpret(switchCase1); !!
+| switchCase!< switchCases!<
+  !! interpret(switchCase1); interpret(switchCases1); !!
 
 switchCase ::= CASE_KW e0 ':' statement!<
   !! if (!switchMatched && same(currentSwitchValue, e01.v)){
@@ -233,7 +234,7 @@ REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 (* TEST 5: Grouping                                             *)
 (* Uncomment one at a time when testing 3D rendering.           *)
 (* ------------------------------------------------------------ *)
-!try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; sphere 20.0; translate 0.0, -30.0, 0.0; }"
+// !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; sphere 20.0; translate 0.0, -30.0, 0.0; }"
 // !try "plugin('init'); group { box 20.0, 20.0, 20.0; sphere 10.0; }"
 // !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; cylinder 10.0, 40.0; }"
 
@@ -244,3 +245,25 @@ REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 !try "x := 2; switch x { case 1: y := 10; case 2: y := 20; }"
 !try "x := 1; switch x { case 1: y := 99; case 2: y := 20; }"
 !try "x := 3; switch x { case 1: y := 10; case 2: y := 20; }"
+
+
+(* ------------------------------------------------------------ *)
+(* TEST 7: Project Demo                                         *)
+(* ------------------------------------------------------------ *)
+!try "plugin('init');
+size := 20.0;
+height := 40.0;
+choice := 2;
+
+procedure buildShape {
+  switch choice {
+    case 1: box size, size, size;
+    case 2: cylinder 10.0, height;
+  }
+}
+
+group {
+  call buildShape;
+  sphere 10.0;
+  translate 0.0, size + 10.0, 0.0;
+}"
