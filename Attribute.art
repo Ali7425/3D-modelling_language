@@ -1,10 +1,20 @@
-(* gcdAttribute.art GCD in attribute-actions with native Java actions - 5 CFG phrase level rules and 3 CFG lexical rules*)
-(* Use ofplugin in expressions requires return result that can be cast to int *)
+(* ============================================================ *)
+(* Attribute-action interpreter for the 3D modelling language   *)
+(* ============================================================ *)
+
 //!interpreter attributeAction
+
+
+(* ============================================================ *)
+(* SUPPORT CODE / RUNTIME HELPERS                               *)
+(* Stores variables, procedures, and helper functions for       *)
+(* numeric, boolean, and arithmetic handling.                   *)
+(* ============================================================ *)
+
 !support
 !! import java.util.Map; import java.util.HashMap; !!
-!! Map<String, Object> variables = new HashMap<>(); 
-   Map<String, AbstractAttributeBlock> procedures = new HashMap<>(); 
+!! Map<String, Object> variables = new HashMap<>();
+   Map<String, AbstractAttributeBlock> procedures = new HashMap<>();
    Object currentSwitchValue = null;
    boolean switchMatched = false;
 
@@ -34,10 +44,10 @@
 
    Object subV(Object a, Object b) {
     if (a instanceof Double || b instanceof Double) return num(a) - num(b);
-    return ((Integer) a) - ((Integer) b); 
+    return ((Integer) a) - ((Integer) b);
    }
 
-      Object mulV(Object a, Object b) {
+   Object mulV(Object a, Object b) {
      if (a instanceof Double || b instanceof Double) return num(a) * num(b);
      return ((Integer) a) * ((Integer) b);
    }
@@ -51,64 +61,76 @@
      if (a instanceof Double) return -((Double) a);
      return -((Integer) a);
    }
-  
 !!
+ 
 
-program ::= statements !! System.out.println("Final variable map " + variables); !!
+(* ============================================================ *)
+(* TOP-LEVEL PROGRAM / STATEMENT SEQUENCES                      *)
+(* ============================================================ *)
 
 statements ::= statement statements
-| statement
+| statement !! System.out.println("Final variable map " + variables); !!
 
-// Statement rules:
+
+(* ============================================================ *)
+(* STATEMENT RULES                                              *)
+(* Includes assignment, blocks, control flow, procedures,       *)
+(* modelling commands, grouping, switch, and raw plugin calls.  *)
+(* ============================================================ *)
+
 statement ::=
   ID ':=' e0 ';' !! variables.put(ID1.v, e01.v); !!     // assignment
-| '{' statements!< '}' !! interpret(statements1); !!  // Procedure block 
 
-| 'if' e0 'then' statement!< 'else' statement!<                // if statement 
+| '{' statements!< '}' !! interpret(statements1); !!    // block statement
+
+| 'if' e0 'then' statement!< 'else' statement!<         // if statement
   !! if (truth(e01.v)) interpret(statement1); else interpret(statement2); !!
 
-| 'while' e0!< 'do' statement!<                         // while statement 
+| 'while' e0!< 'do' statement!<                         // while statement
   !! interpret(e01); while (truth(e01.v)) { interpret(statement1); interpret(e01); } !!
 
-// Incremental rules
-| ID '++' ';' !! variables.put(ID1.v, addV(variables.get(ID1.v), 1)); !! // Positive Increment
-| ID '--' ';' !! variables.put(ID1.v, subV(variables.get(ID1.v), 1)); !! // Negative Increment
+| ID '++' ';' !! variables.put(ID1.v, addV(variables.get(ID1.v), 1)); !!   // increment
+| ID '--' ';' !! variables.put(ID1.v, subV(variables.get(ID1.v), 1)); !!   // decrement
 
-// Modelling rules
-| 'box' e0 ',' e0 ',' e0 ';' !! plugin ("box", num(e01.v), num(e02.v), num(e03.v)); !!
-| 'sphere' e0 ';' !! plugin ("sphere", num(e01.v)); !!
-| 'cylinder' e0 ',' e0 ';' !! plugin ("cylinder", num(e01.v), num(e02.v)); !!
-| 'translate' e0 ',' e0 ',' e0 ';' !! plugin("translate", num(e01.v), num(e02.v), num(e03.v)); !!
-| 'rotate' e0 ',' e0 ',' e0 ';' !! plugin("rotate", num(e01.v), num(e02.v), num(e03.v)); !!
-| 'scale' e0 ',' e0 ',' e0 ';' !! plugin("scale", num(e01.v), num(e02.v), num(e03.v)); !!
+| 'box' e0 ',' e0 ',' e0 ';' !! plugin ("box", num(e01.v), num(e02.v), num(e03.v)); !!          // box
+| 'sphere' e0 ';' !! plugin ("sphere", num(e01.v)); !!                                            // sphere
+| 'cylinder' e0 ',' e0 ';' !! plugin ("cylinder", num(e01.v), num(e02.v)); !!                    // cylinder
+| 'translate' e0 ',' e0 ',' e0 ';' !! plugin("translate", num(e01.v), num(e02.v), num(e03.v)); !! // translate
+| 'rotate' e0 ',' e0 ',' e0 ';' !! plugin("rotate", num(e01.v), num(e02.v), num(e03.v)); !!       // rotate
+| 'scale' e0 ',' e0 ',' e0 ';' !! plugin("scale", num(e01.v), num(e02.v), num(e03.v)); !!         // scale
 
-// Grouping statement
-| GROUP_KW '{' statements!< '}'
+| GROUP_KW '{' statements!< '}'                        // grouping statement
   !! plugin("groupStart");
      interpret(statements1);
      plugin("groupEnd"); !!
 
-// Switch statements
-| SWITCH_KW e0 '{' switchCases!< '}'
+| SWITCH_KW e0 '{' switchCases!< '}'                   // switch statement
   !! currentSwitchValue = e01.v;
      switchMatched = false;
      interpret(switchCases1); !!
 
-| 'plugin' '(' STRING_SQ ')' ';' !! plugin(STRING_SQ1.v); !!
-| 'plugin' '(' STRING_SQ ',' e0 ')' ';'!! plugin(STRING_SQ1.v, e01.v); !!
-| 'plugin' '(' STRING_SQ ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v); !!
-| 'plugin' '(' STRING_SQ  ',' e0 ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v, e03.v); !!
+| 'plugin' '(' STRING_SQ ')' ';' !! plugin(STRING_SQ1.v); !!                                      // raw plugin call
+| 'plugin' '(' STRING_SQ ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v); !!                        // raw plugin call, 1 arg
+| 'plugin' '(' STRING_SQ ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v); !!         // raw plugin call, 2 args
+| 'plugin' '(' STRING_SQ ',' e0 ',' e0 ',' e0 ')' ';' !! plugin(STRING_SQ1.v, e01.v, e02.v, e03.v); !! // raw plugin call, 3 args
 
-| PROCEDURE ID statement!<
+| PROCEDURE ID statement!<                           // procedure definition
     !! procedures.put(ID1.v, statement1); !!
-| CALL_KW ID ';'
+
+| CALL_KW ID ';'                                     // procedure call
     !! interpret(procedures.get(ID1.v)); !!
 
 
-// Switch statement case rules
- switchCases ::=  switchCase!<
+(* ============================================================ *)
+(* SWITCH HELPER RULES                                          *)
+(* switchCases holds the list of cases. switchCase checks       *)
+(* whether the current switch expression matches.               *)
+(* ============================================================ *)
+
+switchCases ::= switchCase!<
   | switchCase!< switchCases!<
     !! interpret(switchCase1); interpret(switchCases1); !!
+
 switchCase ::= CASE_KW e0 ':' statement!<
   !! if (!switchMatched && same(currentSwitchValue, e01.v)){
       switchMatched = true;
@@ -116,9 +138,15 @@ switchCase ::= CASE_KW e0 ':' statement!<
     } !!
 
 
+(* ============================================================ *)
+(* EXPRESSION GRAMMAR                                           *)
+(* e0 = comparisons                                             *)
+(* e1 = + and -                                                 *)
+(* e2 = * and /                                                 *)
+(* e3 = literals, variables, unary minus, parentheses, plugin   *)
+(* ============================================================ *)
 
-// Expression grammer with Object values:
-e0 <v::Object> ::=  e1 !! e0.v = e11.v; !! 
+e0 <v::Object> ::=  e1 !! e0.v = e11.v; !!
   | e1 '>' e1 !! e0.v = num(e11.v) > num(e12.v); !!
   | e1 '<' e1 !! e0.v = num(e11.v) < num(e12.v); !!
   | e1 '==' e1 !! e0.v = same(e11.v, e12.v); !!
@@ -127,12 +155,12 @@ e0 <v::Object> ::=  e1 !! e0.v = e11.v; !!
 e1 <v::Object> ::= e2 !! e1.v = e21.v; !!
   | e1 '+' e2 !! e1.v = addV(e11.v, e21.v); !!
   | e1 '-' e2 !! e1.v = subV(e11.v, e21.v); !!
- 
+
 e2 <v::Object> ::= e3 !! e2.v = e31.v; !!
   | e2 '*' e3 !! e2.v = mulV(e21.v, e31.v); !!
   | e2 '/' e3 !! e2.v = divV(e21.v, e31.v); !!
 
-e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
+e3 <v::Object> ::= REAL !! e3.v = REAL1.v; !!
   | INTEGER !! e3.v = INTEGER1.v; !!
   | 'true'  !! e3.v = true; !!
   | 'false' !! e3.v = false; !!
@@ -142,34 +170,56 @@ e3 <v::Object> ::= REAL    !! e3.v = REAL1.v; !!
   | STRING_SQ !! e3.v = STRING_SQ1.v; !!
   | 'plugin' '(' STRING_SQ ',' e0 ')' !! e3.v = plugin(STRING_SQ1.v, e01.v); !!
 
-// Lexical rules
+
+(* ============================================================ *)
+(* KEYWORD / LEXICAL RULES                                      *)
+(* ============================================================ *)
 
 PROCEDURE ::= 'procedure'
-CALL_KW  ::= 'call' 
+CALL_KW  ::= 'call'
 GROUP_KW ::= 'group'
 SWITCH_KW ::= 'switch'
 CASE_KW ::= 'case'
 
-ID <v::String>        ::= &ID !! ID.v = lexeme(); !!  
+ID <v::String>        ::= &ID !! ID.v = lexeme(); !!
 STRING_SQ <v::String> ::= &STRING_SQ !! STRING_SQ.v = lexeme().translateEscapes(); !!
-INTEGER  <v::Integer>            ::= &INTEGER   !! INTEGER.v = Integer.parseInt(lexeme()); !!
+INTEGER  <v::Integer> ::= &INTEGER !! INTEGER.v = Integer.parseInt(lexeme()); !!
 REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 
-// Test 1: If and While Loops
+
+(* ============================================================ *)
+(* TESTS                                                        *)
+(* Each test section checks a different language feature.       *)
+(* ============================================================ *)
+
+
+(* ------------------------------------------------------------ *)
+(* TEST 1: If and While Loops                                   *)
+(* ------------------------------------------------------------ *)
 !try "if true then x := 1; else x := 2;"
 !try "x := 3; while x > 0 do { x := x - 1; }"
 
-// Test 2: Procedures
+
+(* ------------------------------------------------------------ *)
+(* TEST 2: Procedures                                           *)
+(* ------------------------------------------------------------ *)
 !try "procedure p { x := 99; } call p;"
 !try "procedure p { x := x + 1; } x := 5; call p;"
 
-// Test 3: Increments
+
+(* ------------------------------------------------------------ *)
+(* TEST 3: Increment / Decrement                                *)
+(* ------------------------------------------------------------ *)
 !try "x := 5; x++;"
 !try "x := 5; x--;"
 !try "x := 2.5; x++;"
 !try "x := 2.5; x--;"
 
-// Test 4: Modelling statements - When testing 3d modelling, test 1 line at a time to prevent shape overlap:
+
+(* ------------------------------------------------------------ *)
+(* TEST 4: Modelling Statements                                 *)
+(* Uncomment one at a time when testing 3D rendering.           *)
+(* ------------------------------------------------------------ *)
 
 // !try "plugin('init'); box 40.0, 40.0, 40.0;"
 // !try "plugin('init'); sphere 20.0;"
@@ -178,12 +228,19 @@ REAL <v::Double>      ::= &REAL !! REAL.v = Double.parseDouble(lexeme()); !!
 // !try "plugin('init'); box 20.0, 20.0, 20.0; rotate 45.0, 0.0, 0.0;"
 // !try "plugin('init'); box 20.0, 20.0, 20.0; scale 2.0, 1.0, 1.0;"
 
-// Grouping Tests:
-!try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; sphere 20.0; translate 0.0, -30.0, 0.0; }"
-!try "plugin('init'); group { box 20.0, 20.0, 20.0; sphere 10.0; }"
-!try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; cylinder 10.0, 40.0; }"
 
-// Switch Statement tests:
+(* ------------------------------------------------------------ *)
+(* TEST 5: Grouping                                             *)
+(* Uncomment one at a time when testing 3D rendering.           *)
+(* ------------------------------------------------------------ *)
+!try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; sphere 20.0; translate 0.0, -30.0, 0.0; }"
+// !try "plugin('init'); group { box 20.0, 20.0, 20.0; sphere 10.0; }"
+// !try "plugin('init'); group { box 20.0, 20.0, 20.0; translate 0.0, 30.0, 0.0; cylinder 10.0, 40.0; }"
+
+
+(* ------------------------------------------------------------ *)
+(* TEST 6: Switch Statements                                    *)
+(* ------------------------------------------------------------ *)
 !try "x := 2; switch x { case 1: y := 10; case 2: y := 20; }"
 !try "x := 1; switch x { case 1: y := 99; case 2: y := 20; }"
 !try "x := 3; switch x { case 1: y := 10; case 2: y := 20; }"
